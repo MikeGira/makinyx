@@ -39,9 +39,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # actions is included because workflow files are present — omitting it
-        # causes a "code scanning configuration error" on this repo.
-        language: [javascript-typescript, actions]
+        # javascript-typescript is deliberately excluded: this repo is a static
+        # HTML/CSS site with zero JS/TS source (verified in the actual failing
+        # run — CodeQL's extractor hits "Only found JavaScript or TypeScript
+        # files that were empty or contained syntax errors" and exits 32,
+        # https://docs.github.com/en/code-security/reference/code-scanning/troubleshoot-analysis-errors/no-source-code-seen-during-build).
+        # Re-add it once real JS/TS lands (e.g. api/contact.js in Phase 2).
+        language: [actions]
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
