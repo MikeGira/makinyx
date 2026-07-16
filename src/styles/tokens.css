@@ -1,0 +1,116 @@
+/*
+ * Design Tokens — Makinyx (makinyx.com)
+ * Copied from ~/.claude/templates/design-tokens.css, customized for Makinyx's brand.
+ * This is the ONLY place hex codes, spacing, and radius values are defined.
+ * No raw hex codes anywhere else — everything references var(--token).
+ */
+
+:root {
+  /* ─── Color: Dark mode (default) ─────────────────────────── */
+  --bg-base:        #0B0C0F;
+  --bg-elev:        #16171B;
+  --bg-hover:       #1C1D22;
+  --bg-active:      #232429;
+
+  --border:         rgba(255, 255, 255, 0.08);
+  --border-strong:  rgba(255, 255, 255, 0.14);
+
+  --text-primary:   #E7E7EA;
+  --text-secondary: #A5A5AC;
+  --text-muted:     #6B6B72;
+
+  /* ONE accent color. Used in < 2% of pixels — links, one CTA, focus rings. */
+  --accent:         #7F7BEB;
+  --accent-hover:   #8E8AEF;
+
+  --success:        #4FA47A;
+  --warning:        #D4A55F;
+  --danger:         #C26B6B;
+
+  /* ─── Typography ─────────────────────────────────────────── */
+  --font-sans:      'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:      'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+  --text-12:        0.75rem;
+  --text-14:        0.875rem;
+  --text-16:        1rem;
+  --text-20:        1.25rem;
+  --text-32:        2rem;
+
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semi:    600;
+
+  --leading-body:   1.5;
+  --leading-tight:  1.3;
+  --leading-mono:   1.5;
+
+  /* ─── Spacing scale — STRICT ─────────────────────────────── */
+  --space-1:        0.25rem;
+  --space-2:        0.5rem;
+  --space-3:        0.75rem;
+  --space-4:        1rem;
+  --space-6:        1.5rem;
+  --space-8:        2rem;
+  --space-12:       3rem;
+  --space-16:       4rem;
+
+  /* ─── Radius scale — STRICT ──────────────────────────────── */
+  --radius-0:       0;
+  --radius-sm:      0.375rem;
+  --radius-md:      0.5rem;
+  --radius-lg:      0.75rem;
+  --radius-xl:      1rem;
+  --radius-full:    9999px;
+
+  /* ─── Motion ─────────────────────────────────────────────── */
+  --dur-instant:    120ms;
+  --dur-state:      200ms;
+  --dur-modal:      300ms;
+  --ease:           cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Light mode ─────────────────────────────────────────── */
+.light, :root[data-theme="light"] {
+  --bg-base:        #FAFAFA;
+  --bg-elev:        #FFFFFF;
+  --bg-hover:       #F4F4F5;
+  --bg-active:      #EAEAEB;
+
+  --border:         rgba(0, 0, 0, 0.08);
+  --border-strong:  rgba(0, 0, 0, 0.14);
+
+  --text-primary:   #16171B;
+  --text-secondary: #5A5A5A;
+  --text-muted:     #9A9A9A;
+
+  --accent:         #5F5BD6;
+  --accent-hover:   #4E4AC1;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg-base:        #FAFAFA;
+    --bg-elev:        #FFFFFF;
+    --bg-hover:       #F4F4F5;
+    --bg-active:      #EAEAEB;
+
+    --border:         rgba(0, 0, 0, 0.08);
+    --border-strong:  rgba(0, 0, 0, 0.14);
+
+    --text-primary:   #16171B;
+    --text-secondary: #5A5A5A;
+    --text-muted:     #9A9A9A;
+
+    --accent:         #5F5BD6;
+    --accent-hover:   #4E4AC1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-state:   0ms;
+    --dur-modal:   0ms;
+  }
+}

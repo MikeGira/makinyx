@@ -1,0 +1,84 @@
+name: Makinyx — Security Scan & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ── 1. SECRET DETECTION ──────────────────────────────────────────────
+  secret-scan:
+    name: Secret Detection (Gitleaks)
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Gitleaks — detect hardcoded secrets
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── 2. STATIC CODE ANALYSIS ──────────────────────────────────────────
+  code-scan:
+    name: SAST — CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # actions is included because workflow files are present — omitting it
+        # causes a "code scanning configuration error" on this repo.
+        language: [javascript-typescript, actions]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ── 3. CONFIRM VERCEL DEPLOYMENT ────────────────────────────────────
+  confirm-deploy:
+    name: Confirm Vercel Deployment
+    needs: [secret-scan, code-scan]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Security gate passed
+        run: |
+          echo "Secret scan passed"
+          echo "CodeQL analysis passed"
+          echo "Vercel auto-deployed from push to main"
+          echo "Live at: https://makinyx.com"
+          echo "$(date -u)"
+
+      - name: Smoke test — verify site is live
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://makinyx.com)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Site returned $STATUS"
+            exit 1
+          fi
+          echo "Site returning 200 OK"
