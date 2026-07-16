@@ -7,10 +7,13 @@
 
 ## Problem Statement
 Mike's professional presence is fragmented across bio-two-eta.vercel.app, taskpilot-umber.vercel.app,
-GitHub, and LinkedIn, with no single memorable home tying them together. makinyx.com becomes that
-home: the umbrella brand under which Mike's professional credibility (Bio), his product ventures
-(TaskPilot and future apps), and eventually a consulting offering all live — starting as a single
-hub page and deliberately evolving into a multi-page brand site as the ventures under it grow.
+GitHub, and LinkedIn, with no single memorable home tying them together — and no home that carries
+the actual destination: a technology group delivering AI and automation solutions to underserved
+communities in Rwanda, Canada, and across Africa (agriculture, health, education, governance).
+makinyx.com becomes that home: the umbrella brand under which Mike's professional credibility (Bio),
+his product ventures (TaskPilot and future apps), and eventually a consulting offering all live on
+the way to that destination — starting as a single hub page and deliberately evolving into a
+multi-page brand site as the ventures under it grow.
 
 ## Target Users
 - Primary: Recruiters/employers evaluating Mike for AI Solutions Architect roles — need a fast,

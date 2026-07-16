@@ -1,5 +1,22 @@
 /* Makinyx — layout and components. Tokens only, no raw hex here. */
 
+/* Self-hosted (SIL OFL) — keeps CSP locked to 'self', no CDN/webfont origin needed. */
+@font-face {
+  font-family: 'Inter Variable';
+  src: url('/src/fonts/InterVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/src/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -22,6 +39,7 @@ body {
   font-size: var(--text-16);
   line-height: var(--leading-body);
   font-weight: var(--weight-regular);
+  -webkit-font-smoothing: antialiased;
 }
 
 .skip-link {
@@ -65,10 +83,17 @@ a:hover {
 }
 
 .nav__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-weight: var(--weight-semi);
   font-size: var(--text-16);
   text-decoration: none;
   color: var(--text-primary);
+}
+
+.mark rect {
+  transition: stroke var(--dur-state) var(--ease);
 }
 
 .nav nav {
@@ -93,9 +118,25 @@ a:hover {
   text-align: center;
 }
 
+.mark--hero {
+  margin: 0 0 var(--space-6);
+}
+
+.hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-12);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 var(--space-4);
+}
+
 .hero h1 {
-  font-size: var(--text-32);
+  /* One deliberate display size for the single hero moment on this site —
+     the strict 5-size type scale governs body/UI text, not this one-off. */
+  font-size: clamp(2.5rem, 4vw + 1.5rem, 4rem);
   font-weight: var(--weight-semi);
+  letter-spacing: -0.02em;
   margin: 0 0 var(--space-4);
 }
 
@@ -113,7 +154,7 @@ a:hover {
   text-decoration: none;
   font-weight: var(--weight-medium);
   font-size: var(--text-14);
-  transition: background var(--dur-state) var(--ease);
+  transition: background var(--dur-state) var(--ease), transform var(--dur-state) var(--ease);
 }
 
 .button--primary {
@@ -124,6 +165,7 @@ a:hover {
 .button--primary:hover {
   background: var(--accent-hover);
   color: var(--bg-base);
+  transform: translateY(-1px);
 }
 
 .section {
@@ -159,20 +201,28 @@ a:hover {
 .card {
   display: block;
   padding: var(--space-6);
+  background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   text-decoration: none;
   color: var(--text-primary);
-  transition: border-color var(--dur-state) var(--ease);
+  transition: border-color var(--dur-state) var(--ease), transform var(--dur-state) var(--ease);
 }
 
 .card:hover {
   border-color: var(--border-strong);
   color: var(--text-primary);
+  transform: translateY(-2px);
 }
 
 .card--placeholder {
   color: var(--text-muted);
+  background: transparent;
+}
+
+.card--placeholder:hover {
+  transform: none;
+  border-color: var(--border);
 }
 
 .card h3 {
