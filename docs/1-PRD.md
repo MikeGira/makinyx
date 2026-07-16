@@ -9,11 +9,24 @@
 Mike's professional presence is fragmented across bio-two-eta.vercel.app, taskpilot-umber.vercel.app,
 GitHub, and LinkedIn, with no single memorable home tying them together — and no home that carries
 the actual destination: a technology group delivering AI and automation solutions to underserved
-communities in Rwanda, Canada, and across Africa (agriculture, health, education, governance).
-makinyx.com becomes that home: the umbrella brand under which Mike's professional credibility (Bio),
-his product ventures (TaskPilot and future apps), and eventually a consulting offering all live on
-the way to that destination — starting as a single hub page and deliberately evolving into a
-multi-page brand site as the ventures under it grow.
+communities in Rwanda, Canada, and across Africa. makinyx.com becomes that home: the umbrella brand
+under which Mike's professional credibility (Bio), his product ventures (TaskPilot and future apps),
+and eventually a consulting offering all live on the way to that destination — starting as a single
+hub page and deliberately evolving into a multi-page brand site as the ventures under it grow.
+
+**Clarified with Mike 2026-07-16 (two-part answer):** the farmers, shopkeepers, and logistics
+operators who keep underserved communities running, and the schools, clinics, and governments that
+serve them, ARE the mission's beneficiaries — retail/logistics/clothing/equipment sectors are
+lenses on the same underserved-communities mission as agriculture/health/education/governance, not
+a separate audience. *In addition*, Mike also wants Makinyx's eventual commercial/consulting work
+to fund that mission — broader industry reach is a revenue engine, not just a beneficiary list. He
+pointed to `mikegiras.github.io/opsynth` (an illustrative concept site, `D:\Projects\SAMS`,
+currently concept-stage per the project registry) as the long-term reference model: a Toronto-based
+AI/automation group serving many industries (agriculture, healthcare, defense, logistics, mining,
+manufacturing, government) via tiered subscriptions + enterprise contracts + consulting, with
+explicit Rwanda/Kenya underserved-community operations funded by that broader commercial base. This
+is the shape Makinyx is meant to grow into — see Post-MVP Features below for how that's scoped for
+this PRD without overclaiming it in v1.
 
 ## Target Users
 - Primary: Recruiters/employers evaluating Mike for AI Solutions Architect roles — need a fast,
@@ -55,6 +68,16 @@ multi-page brand site as the ventures under it grow.
   contact pattern).
 - Case-study style write-ups, potentially drawing on the "How I Build" content already planned for Bio.
 - Possible Makinyx-specific newsletter/blog once the brand has an audience distinct from Bio's.
+- **Commercial services across industries, funding the mission** (OpSynth-inspired long-term
+  direction, clarified 2026-07-16 — do not build or advertise this in v1): once Makinyx has actual
+  delivered work to point to, `/services` can expand beyond a single consulting contact form into
+  named industry offerings (agriculture, logistics, retail, manufacturing, etc.), with that revenue
+  explicitly funding the underserved-communities work rather than replacing it. This is deliberately
+  excluded from the live site's Vision copy for now — announcing broad multi-industry reach with
+  zero delivered evidence reads as generic agency positioning and undercuts credibility with
+  recruiters/clients evaluating Mike today. Revisit this once Bio/TaskPilot/Makinyx have real case
+  studies to back a broader claim, and treat it as its own "new major feature" requiring a PRD +
+  Schema update per the Pre-Build Protocol scale-to-scope table, not an ad hoc addition.
 
 ## Success Metrics
 - Apex domain + both subdomains resolve with valid TLS, zero downtime during cutover.
