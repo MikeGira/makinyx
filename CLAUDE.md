@@ -12,9 +12,12 @@ single-page hub; it is committed to evolving into a multi-page site (see Phase 5
 - **Database**: Supabase PostgreSQL with RLS (Phase 2, contact form only)
 - **Email**: Resend API (Phase 2, contact-form notifications only)
 - **Frontend**: Vanilla HTML5/CSS3, zero npm dependencies
-- **DNS/Registrar**: Cloudflare (apex A record + subdomain CNAMEs, all DNS-only/grey-cloud — never
-  proxied, or Vercel's Let's Encrypt TLS issuance breaks)
-- **CI/CD**: GitHub Actions (Gitleaks + CodeQL + zizmor workflow lint) → Vercel auto-deploy
+- **DNS/Registrar**: Cloudflare, for both. Intended zone state is declared in `dns/makinyx.com.json`
+  — that file is the source of truth, not this list; read it rather than copying values out of it.
+  Every record is DNS-only/grey-cloud; proxying breaks Vercel's Let's Encrypt issuance and is against
+  Vercel's own guidance.
+- **CI/CD**: GitHub Actions (Gitleaks + CodeQL + zizmor workflow lint) → Vercel auto-deploy, plus a
+  daily DNS Guard that diffs the live zone against `dns/makinyx.com.json`
 
 ## Commands
 ```bash
@@ -28,7 +31,11 @@ index.html              # v1 hub page
 src/styles/tokens.css   # design tokens — ONLY place hex/spacing/radius values are defined
 src/styles/main.css     # layout and components, references tokens only
 api/                    # serverless functions — none yet, contact form lands in Phase 2
+dns/makinyx.com.json    # declared DNS state — source of truth for the zone, enforced by CI
+scripts/dns-guard.js    # diffs the live zone against dns/makinyx.com.json over DoH
 docs/                   # Pre-Build docs (1-PRD through 6-PLAN) + COMPLIANCE + INCIDENT-RESPONSE
+docs/adr/               # architecture decision records
+docs/runbooks/          # operational procedures
 ```
 
 ## Environment Variables
@@ -52,6 +59,8 @@ existing Bio and TaskPilot Vercel projects. They do not deploy from this repo an
 lives in `github.com/MikeGira/Bio` and `github.com/MikeGira/taskpilot` respectively.
 
 ## Architecture Decisions
+- DNS authority stays at Cloudflare; the domain is attached to Vercel with A records, not by
+  delegating nameservers to Vercel — `docs/adr/0001-dns-authority-stays-at-cloudflare.md`.
 - Apex domain requires an A record, not a CNAME (DNS RFC1034 forbids other records at the zone
   apex) — see `docs/2-TRD.md` Architecture Overview.
 - No web font is self-hosted or CDN-loaded — `Inter Variable`/`JetBrains Mono` are requested by
@@ -62,6 +71,13 @@ lives in `github.com/MikeGira/Bio` and `github.com/MikeGira/taskpilot` respectiv
   serverless/Supabase *patterns*, not for Makinyx's specific colors/wordmark.
 
 ## Do Not
+- Repoint `makinyx.com`'s nameservers to `ns1/ns2.vercel-dns.com`, or act on Vercel's recurring
+  "complete your domain setup" email. Cloudflare Registrar contractually requires Cloudflare
+  nameservers, so it is not even possible without a registrar transfer, and the current A-record
+  setup is a supported, working Vercel configuration. Full reasoning and the only three conditions
+  that would reopen it: `docs/adr/0001-dns-authority-stays-at-cloudflare.md`.
+- Change a DNS record in Cloudflare without making the matching change in `dns/makinyx.com.json` in
+  the same piece of work — the DNS Guard workflow will fail, correctly.
 - Commit `.env` or any file with real credentials.
 - Add a database table or auth flow without updating `docs/5-SCHEMA.md` and `docs/COMPLIANCE.md`.
 - Let the single-page hub sit past the Phase 5 trigger date without actively starting the
