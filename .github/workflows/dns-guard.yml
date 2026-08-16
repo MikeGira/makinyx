@@ -1,0 +1,49 @@
+name: DNS Guard
+
+# Verifies the live makinyx.com zone against the declared state in
+# dns/makinyx.com.json. Catches nameserver delegation changes, record drift,
+# certificate mis-issuance or non-renewal, and tracks the declared-but-not-yet-
+# applied hardening (DNSSEC, CAA, SPF/DMARC/null MX) until it is in place.
+#
+# Runs from GitHub runners rather than a Claude cloud routine: the routine
+# sandbox egress proxy 403s non-allowlisted domains, so it cannot resolve or
+# probe makinyx.com at all. Off-hour minute avoids scheduler congestion.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 7 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'dns/**'
+      - 'scripts/dns-guard.js'
+      - '.github/workflows/dns-guard.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dns-guard
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    name: Verify declared DNS state
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Compare live zone against dns/makinyx.com.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: node scripts/dns-guard.js
