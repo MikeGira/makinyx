@@ -18,6 +18,44 @@ machine; no credentials needed for the local (report-only) mode.
 
 ---
 
+## The fast path — apply everything from the declared state
+
+`scripts/dns-apply.js` reconciles Cloudflare with `dns/makinyx.com.json`, so the records below do not
+have to be typed by hand. Sections 1–4 remain the reference for *what* each record is and why, and
+the fallback if the API route is not wanted.
+
+```bash
+# 1. Create a Cloudflare API token — see below for the exact scopes
+export CLOUDFLARE_API_TOKEN="..."
+
+# 2. Plan. Changes nothing, prints exactly what it would do.
+node scripts/dns-apply.js
+
+# 3. Execute.
+node scripts/dns-apply.js --apply
+
+# 4. Verify against public DNS rather than the API, so the result is checked, not the intent.
+node scripts/dns-guard.js
+```
+
+**Token scopes** — Cloudflare dashboard → **My Profile** → **API Tokens** → **Create Token** →
+**Create Custom Token**:
+
+| Setting | Value |
+|---|---|
+| Permissions | `Zone` → `Zone` → **Read** |
+| | `Zone` → `DNS` → **Edit** |
+| | `Zone` → `Zone Settings` → **Edit** *(DNSSEC)* |
+| Zone Resources | Include → **Specific zone** → `makinyx.com` |
+| TTL | Short — this is a one-off; revoke the token when the run is done |
+
+The script refuses to write to any zone whose name is not `makinyx.com`, or whose A records already
+disagree with the spec, or which has a proxied record. It only ever touches the CAA, MX, SPF, DMARC
+and wildcard-DKIM records it manages — the A and NS records that keep the site up are read for that
+safety check and never written.
+
+---
+
 ## 1. Enable DNSSEC
 
 **Why.** Without DNSSEC, a resolver anywhere in the path can hand a client a forged address for
@@ -85,26 +123,36 @@ Cloudflare may add some of these itself; duplicates are harmless and it de-dupli
 
 **Why.** `makinyx.com` neither sends nor receives mail, and has no SPF, no DMARC and no MX. That means
 anyone can send mail as `mike@makinyx.com` and receiving servers have no instruction to reject it —
-against a domain that is on a résumé and named in published legal pages. The M3AAWG parked-domain
-baseline is three records.
+against a domain that is on a résumé and named in published legal pages. This is the exact record set
+[M3AAWG's *Protecting Parked Domains BCP*](https://www.m3aawg.org/sites/default/files/doc_files/m3aawg_parked_domains_bcp-2022-06.pdf)
+specifies.
 
 **The values.**
 
-| Type | Name | Content |
-|---|---|---|
-| MX | `makinyx.com` | priority `0`, mail server `.` |
-| TXT | `makinyx.com` | `v=spf1 -all` |
-| TXT | `_dmarc.makinyx.com` | `v=DMARC1; p=reject; rua=mailto:byosekumbuga@gmail.com; ruf=mailto:byosekumbuga@gmail.com; fo=1; aspf=s; adkim=s` |
+| Type | Name | Content | What it does |
+|---|---|---|---|
+| MX | `makinyx.com` | priority `0`, mail server `.` | Declares the domain accepts no mail (RFC 7505) |
+| TXT | `makinyx.com` | `v=spf1 -all` | Authorises no sender anywhere |
+| TXT | `_dmarc.makinyx.com` | `v=DMARC1; p=reject; sp=reject` | Tells receivers to reject spoofed mail, `sp=` extending that to `bio.`, `taskpilot.` and any future subdomain |
+| TXT | `*._domainkey.makinyx.com` | `v=DKIM1; p=` | Empty key revokes every possible DKIM selector at once |
 
-**Steps.** Cloudflare's **DNS** → **Records** page has an **Email security** wizard for domains that
-do not send email, which writes SPF and DMARC for you; use it, then check the values match the table
-above and adjust the DMARC policy to `p=reject` if it wrote something weaker.
+A parked domain can go straight to `p=reject` on day one. The usual `p=none` → `p=quarantine` →
+`p=reject` ramp exists to avoid breaking legitimate senders, and there are none here.
 
-The null MX must be added by hand. Cloudflare's form rejects a bare `.` unless the priority is `0` and
-the **Name** field is the full domain (`makinyx.com`) rather than `@` — a known quirk of their
-validation, not a DNS restriction.
+**No `rua=` is set, deliberately.** Aggregate reports sent to a mailbox outside the domain require the
+receiving domain to publish an external-destination authorisation record (RFC 7489 §7.1), and
+`gmail.com` publishes none — verified NXDOMAIN on 2026-08-16 for both
+`makinyx.com._report._dmarc.gmail.com` and the wildcard — so conformant reporters would drop them.
+`p=reject` is the protection; reporting is visibility. Add `rua=mailto:dmarc@makinyx.com` when a
+mailbox on this domain exists, which needs no authorisation record. `ruf=` stays off regardless:
+forensic reports carry message content, and most receivers do not send them anyway.
 
-**Verify.** `node scripts/dns-guard.js` prints `Null MX ok`, `SPF ok`, `DMARC ok`.
+**Steps.** Use the scripted path above. By hand, note that Cloudflare's form rejects a bare `.` for the
+null MX unless the priority is `0` **and** the **Name** field is the full domain (`makinyx.com`) rather
+than `@` — a quirk of their validation, not a DNS restriction.
+
+**Verify.** `node scripts/dns-guard.js` prints `Null MX ok`, `SPF ok`, `DMARC ok`,
+`DKIM wildcard revocation ok`.
 
 **Then.** Set `email.enforce` to `true`.
 
