@@ -32,6 +32,7 @@ src/styles/tokens.css   # design tokens — ONLY place hex/spacing/radius values
 src/styles/main.css     # layout and components, references tokens only
 api/                    # serverless functions — none yet, contact form lands in Phase 2
 dns/makinyx.com.json    # declared DNS state — source of truth for the zone, enforced by CI
+scripts/dns-apply.js    # reconciles Cloudflare with dns/makinyx.com.json (plan by default)
 scripts/dns-guard.js    # diffs the live zone against dns/makinyx.com.json over DoH
 docs/                   # Pre-Build docs (1-PRD through 6-PLAN) + COMPLIANCE + INCIDENT-RESPONSE
 docs/adr/               # architecture decision records

@@ -277,8 +277,29 @@ async function checkEmail() {
     record(spec.enforce, `**No DMARC record:** receivers have no instruction to reject spoofed \`@${SPEC.zone}\` mail. Publish TXT at \`_dmarc.${SPEC.zone}\`: \`${spec.dmarc}\`.`);
   } else if (!/p\s*=\s*reject/i.test(dmarc)) {
     record(spec.enforce, `**DMARC not enforcing:** live policy is \`${dmarc}\`, declared \`${spec.dmarc}\`.`);
+  } else if (!spec.sendsMail && !/sp\s*=\s*reject/i.test(dmarc)) {
+    // Without sp=, subdomains inherit p= — but only for subdomains with no
+    // record of their own. Stating it explicitly is what M3AAWG specifies, and
+    // this zone has three subdomains in production.
+    record(spec.enforce, `**DMARC does not cover subdomains:** live policy is \`${dmarc}\`, which omits \`sp=reject\`. \`bio.\`, \`taskpilot.\` and any future subdomain are unprotected.`);
   } else {
     console.log('DMARC ok');
+  }
+
+  if (spec.dkimRevocation) {
+    // A wildcard record only proves itself through a label nobody would create.
+    const probe = `zz-dns-guard-probe._domainkey.${SPEC.zone}`;
+    const dkim = await lookup(probe, 'TXT');
+    const revoked = dkim.values.map(unquote).some(v => /^v=DKIM1\s*;\s*p=\s*$/i.test(v.trim()));
+    if (!revoked) {
+      record(
+        spec.enforce,
+        `**No wildcard DKIM revocation:** \`${spec.dkimRevocation.name}.${SPEC.zone}\` does not publish \`${spec.dkimRevocation.value}\`, ` +
+          `so a forged message can claim any DKIM selector and receivers have nothing that says the key is void.`,
+      );
+    } else {
+      console.log('DKIM wildcard revocation ok');
+    }
   }
 }
 

@@ -87,8 +87,10 @@
     "sendsMail": false,
     "nullMx": "0 .",
     "spf": "v=spf1 -all",
-    "dmarc": "v=DMARC1; p=reject; rua=mailto:byosekumbuga@gmail.com; ruf=mailto:byosekumbuga@gmail.com; fo=1; aspf=s; adkim=s",
-    "why": "makinyx.com neither sends nor receives mail today, so the M3AAWG parked-domain baseline applies: RFC 7505 null MX, an SPF record authorising nobody, and DMARC p=reject. Without these the domain is trivially spoofable in Mike's name.",
-    "reversalTrigger": "Standing up privacy@makinyx.com via Cloudflare Email Routing (reminder item 2/2b) REQUIRES removing the null MX and replacing it with Cloudflare's routing MX records, and relaxing SPF. Update this file in the same change."
+    "dmarc": "v=DMARC1; p=reject; sp=reject",
+    "dkimRevocation": { "name": "*._domainkey", "value": "v=DKIM1; p=" },
+    "why": "makinyx.com neither sends nor receives mail, so the four records M3AAWG's Protecting Parked Domains BCP specifies apply verbatim: RFC 7505 null MX, SPF authorising nobody, DMARC p=reject with sp=reject so bio./taskpilot./any future subdomain inherit it, and a wildcard DKIM record with an empty key that revokes every possible selector. Without them the domain is trivially spoofable in Mike's name, and it is a domain on his resume and in his published legal pages.",
+    "dmarcNotes": "No rua= is set. Aggregate reports to a mailbox outside the domain need the receiving domain to publish an external-destination authorisation record per RFC 7489 section 7.1, and gmail.com publishes none (verified NXDOMAIN 2026-08-16 for makinyx.com._report._dmarc.gmail.com and the wildcard), so conformant reporters would drop them. No ruf= either: forensic reports carry message content and most receivers do not send them. p=reject is the control; reporting is visibility and can be added once a same-domain or authorised mailbox exists.",
+    "reversalTrigger": "Standing up privacy@makinyx.com via Cloudflare Email Routing (reminder item 2/2b) REQUIRES replacing the null MX with Cloudflare's routing MX records and relaxing SPF to include:_spf.mx.cloudflare.net. Update this file in the same change, and add rua=mailto:dmarc@makinyx.com at that point since it then needs no external authorisation."
   }
 }
